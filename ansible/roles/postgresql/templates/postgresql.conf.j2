@@ -123,7 +123,13 @@ maintenance_work_mem = {{ pg_maintenance_work_mem }}		# min 1MB
 
 #max_files_per_process = 1000		# min 25
 									# (change requires restart)
-#shared_preload_libraries = ''		# (change requires restart)
+shared_preload_libraries = 'auto_explain'		# (change requires restart)
+custom_variable_classes = 'auto_explain'
+
+auto_explain.log_min_duration = '300ms'
+auto_explain.log_analyze = on
+auto_explain.log_buffers = on
+
 
 # - Cost-Based Vacuum Delay -
 
