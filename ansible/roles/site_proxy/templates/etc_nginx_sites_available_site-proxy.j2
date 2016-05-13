@@ -172,29 +172,15 @@ server {
 
     location / {
 
-        proxy_cache_valid 1m;
-        expires 1m;
-        add_header Cache-Control "must-revalidate, public";
-        add_header X-Cache-Status $upstream_cache_status;
-
-        # Determine what not to cache based on request headers.  The frontend
-        # app sets a cookie _dpla_no_cache=1 for admin sessions.  It is
-        # cleared for most if not all requests when a user is logged-out.
-        proxy_cache_bypass $do_not_cache_ctype $cookie__dpla_no_cache;
-        proxy_no_cache     $do_not_cache_ctype $cookie__dpla_no_cache;
-
-        # Ignore cache-disabling Cache-Control header set by frontend app
-        proxy_ignore_headers Cache-Control;
+        proxy_pass http://dpla_portal;
+        proxy_cache off;
 
         # Up to 10 simultaneous page requests per IP 
         limit_conn defaultconnzone {{ siteproxy_nginx_default_max_conn }};
         # Up to 20 requests / sec for pages.
         limit_req zone=defaultreqzone burst={{ siteproxy_nginx_default_req_burst }};
     
-        proxy_pass http://dpla_portal;
-
-        # robots.txt
-        location ~ ^/robots.txt$ {
+        location /robots.txt {
             alias /srv/www/robots.txt;
         }
 
@@ -203,10 +189,12 @@ server {
             # It would be great to extend the expiration of frontend assets,
             # but there are still some that the `frontend` app does not seem
             # to compile and assign versioned names.
+            proxy_pass http://dpla_portal;
+            proxy_cache main_cache;
+            proxy_cache_valid 200 301 302 404 1m;
             expires 1m;
             add_header Cache-Control "public";
             add_header X-Cache-Status $upstream_cache_status;
-            proxy_pass http://dpla_portal;
         }
 
         location /saved {
