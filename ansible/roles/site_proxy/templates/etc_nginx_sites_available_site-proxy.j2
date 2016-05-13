@@ -174,6 +174,8 @@ server {
 
         proxy_cache_valid 1m;
         expires 1m;
+        add_header Cache-Control "must-revalidate, public";
+        add_header X-Cache-Status $upstream_cache_status;
 
         # Determine what not to cache based on request headers.  The frontend
         # app sets a cookie _dpla_no_cache=1 for admin sessions.  It is
@@ -203,6 +205,7 @@ server {
             # to compile and assign versioned names.
             expires 1m;
             add_header Cache-Control "public";
+            add_header X-Cache-Status $upstream_cache_status;
             proxy_pass http://dpla_portal;
         }
 
@@ -303,12 +306,14 @@ server {
             proxy_cache_valid 1M;  # 1 month
             expires 1M;
             proxy_pass http://dpla_wp;
+            add_header X-Cache-Status $upstream_cache_status;
         }
         # Same with plugins ...
         location /info/wp-content/plugins {
             proxy_cache_valid 1M; # 1 month
             expires 1M;
             proxy_pass http://dpla_wp;
+            add_header X-Cache-Status $upstream_cache_status;
         }
 
         rewrite /wp-admin$ $scheme://$host$uri/ permanent;
