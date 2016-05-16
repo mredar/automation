@@ -172,6 +172,20 @@ server {
 
     location / {
 
+        # In order to get caching to work, we used to have a
+        # proxy_ignore_headers directive here to ignore Cache-Control and
+        # Set-Cookie. As a result, we were caching responses along with their
+        # Set-Cookie headers.  We were bypassing cache lookup and storage for
+        # requests from logged-in users (by looking for the "_dpla_no_cache"
+        # cookie) but we were storing Set-Cookie response headers for other
+        # requests, which does not seem right.
+        #
+        # FIXME: Improve caching by having the frontend app stop assigning
+        # session cookies unless they are necessary for logins.  Come back here
+        # and adjust caching and expiration when the frontend can make smart
+        # choices about what should be cached, and can set its own cache-related
+        # headers.
+
         proxy_pass http://dpla_portal;
         proxy_cache off;
 
