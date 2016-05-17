@@ -180,11 +180,20 @@ server {
         # cookie) but we were storing Set-Cookie response headers for other
         # requests, which does not seem right.
         #
-        # FIXME: Improve caching by having the frontend app stop assigning
+        # FIXME: Improve caching by having the frontend app stop assigning any
         # session cookies unless they are necessary for logins.  Come back here
         # and adjust caching and expiration when the frontend can make smart
         # choices about what should be cached, and can set its own cache-related
         # headers.
+        #
+        # Note, however, that, as of v21.1.3 of `frontend`, the Set-Cookie
+        # header is set much less frequently, freeing the browser to use
+        # If-None-Match requests.  This provides a good combination of
+        # performance and content freshness.  It should no longer be necessary
+        # to flush the proxy cache for HTML updates.  Requests for pages that
+        # have already been seen will now result in a 304 Not Modified, unless
+        # they have been modified.
+        # (https://github.com/dpla/frontend/commit/0f1085f5c6d4b0c6f265866cb68384f969c53f54)
 
         proxy_pass http://dpla_portal;
         proxy_cache off;
